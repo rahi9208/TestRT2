@@ -1,16 +1,18 @@
 let AWS = require('aws-sdk');
 const ddb = new AWS.DynamoDB.DocumentClient();
+const translate = new AWS.Translate();
 exports.handler = function (event, context, callback) {
 	let response = {
 		"isBase64Encoded": 1,
 		"statusCode": 200,
 		"headers": {
-			"headerName": "headerValue"
+			"Access-Control-Allow-Origin": "*"
 		},
 		"body": "..."
 	};
 
 	let itemType = event.queryStringParameters.type;
+	let language = event.queryStringParameters.lan;
 
 	ddb.scan({
 		TableName: 'TestRT2', ExpressionAttributeValues: { ':itemType': itemType }, FilterExpression: 'itemType = :itemType'
