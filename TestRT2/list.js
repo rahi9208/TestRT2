@@ -16,9 +16,13 @@ exports.handler = function (event, context, callback) {
 
 	ddb.scan({
 		TableName: 'TestRT2', ExpressionAttributeValues: { ':itemType': itemType }, FilterExpression: 'itemType = :itemType'
-	}, function (err, data) {
+	}, async function (err, data) {
 		if (data && data.Items) {
-			response.body = JSON.stringify(data.Items);
+			response.body = JSON.stringify(await Promise.all(data.Items.map(async (item) => {
+				item.itemImage = "https://s3.amazonaws.com/" + process.env["IMAGE_BUCKET"] + "/" + item.itemCode + ".jpg";
+				item.itemName = await translateName(language, item.itemName);
+				return item;
+			})));
 			callback(null, response);
 		} else {
 			response.statusCode = 404;
@@ -28,4 +32,16 @@ exports.handler = function (event, context, callback) {
 	});
 
 
+}
+
+
+async function translateName(to, text) {
+	console.log(to,text);
+	try {
+		return (await translate.translateText(
+			{ SourceLanguageCode: "en", TargetLanguageCode: to, Text: text }
+		).promise()).TranslatedText;
+	} catch (e) {
+		return text;
+	}
 }
