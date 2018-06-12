@@ -36,7 +36,6 @@ exports.handler = function (event, context, callback) {
 
 
 async function translateName(to, text) {
-	console.log(to,text);
 	try {
 		return (await translate.translateText(
 			{ SourceLanguageCode: "en", TargetLanguageCode: to, Text: text }
